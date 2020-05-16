@@ -16,4 +16,6 @@ Format of the header-less `.csv` input: `lat1, lon1, lat2, lon2, vel`
 
 ## TODO:
 
-- Implement weighting using path-lengths within cells
+- [ ] Implement weighting using path-lengths within cells. Check https://gist.github.com/tinybike/d9ff1dad515b66cc0d87.
+- [ ] Synthetic example that can handle varying anisotropy.
+- [ ] Actually test with real data.
