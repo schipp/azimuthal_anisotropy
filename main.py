@@ -21,8 +21,8 @@ def generate_synthetic_example(n_stations=65, lat_lims=(45, 50), lon_lims=(10, 2
     from itertools import combinations
 
     # random station distribution inside grid
-    station_x = np.random.uniform(lon_lims[0]-1, lon_lims[1]+1, [n_stations])
-    station_y = np.random.uniform(lat_lims[0]-1, lat_lims[1]+1, [n_stations])
+    station_x = np.random.uniform(lon_lims[0]+1, lon_lims[1]-1, [n_stations])
+    station_y = np.random.uniform(lat_lims[0]+1, lat_lims[1]-1, [n_stations])
     station_coords = list(zip(station_y, station_x))
     station_pairs = list(combinations(station_coords, 2))
 
@@ -55,6 +55,9 @@ if __name__ == '__main__':
     do_synthetic_example = False
     csv_file = 'synth.csv'
     # -- Geometry of grid
+    # limits of grid
+    lat_lims = [45, 50]
+    lon_lims = [10, 20]
     # size of cells in decimal degrees
     grid_point_cellsize_degree = 1.5
     # overlap of cells from 0 to 1.
@@ -64,8 +67,6 @@ if __name__ == '__main__':
     az_bin_size = 5
 
     # define grid
-    lat_lims = [45, 50]
-    lon_lims = [10, 20]
     grid_points, gp_meshgrid = generate_grid(
         lats=lat_lims,
         lons=lon_lims,
