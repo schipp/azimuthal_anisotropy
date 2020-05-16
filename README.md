@@ -13,3 +13,7 @@ Format of the header-less `.csv` input: `lat1, lon1, lat2, lon2, vel`
 - Matplotlib
 - Obspy (https://github.com/obspy/obspy/wiki)
 - Shapely (https://pypi.org/project/Shapely/)
+
+## TODO:
+
+- Implement weighting using path-lengths within cells
