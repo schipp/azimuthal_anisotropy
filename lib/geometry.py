@@ -212,16 +212,6 @@ def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_h
                 continue
 
             len_in_cell = get_distance(point1=point1, point2=point2, coord_type=coord_type)
-
-            if len_in_cell[0] > 4000E3:
-                print(len(intersection_points), intersection_points)
-                print('')
-                print(ray[0])
-                print(ray[1])
-                print('')
-                print(point1)
-                print(point2)
-                print('')
             ray_lengths_within_cell.append([ray_idx, len_in_cell])
 
     return ray_lengths_within_cells
