@@ -54,25 +54,6 @@ def fit_aniso(az_bins, az_step, vel_bin_medians, vel_bin_stds):
 
     return (params, params_covariance)
 
-def bin_az_measurements(vels, bazs, az_step):
-
-    az_bins = np.arange(0, 180+az_step, az_step)
-    vel_bin_medians = []
-    vel_bin_stds = []
-    for az_bin in az_bins:
-        vels_in_bin = vels[np.where((az_bin <= bazs) & (bazs < az_bin + az_step))]
-        if len(vels_in_bin) > 1:
-            vel_bin_medians.append(np.nanmedian(vels_in_bin))
-            vel_bin_stds.append(np.nanstd(vels_in_bin))
-        else:
-            vel_bin_medians.append(np.nan)
-            vel_bin_stds.append(np.nan)
-    
-    az_bins = np.delete(az_bins, np.argwhere(np.isnan(vel_bin_medians)))
-    vel_bin_medians = np.delete(vel_bin_medians, np.argwhere(np.isnan(vel_bin_medians)))
-    vel_bin_stds = np.delete(vel_bin_stds, np.argwhere(np.isnan(vel_bin_stds)))
-
-    return az_bins, vel_bin_medians, vel_bin_stds
 
 def extract_aniso_results(params, params_covariance):
     param_std = np.sqrt(np.diag(np.abs(params_covariance)))

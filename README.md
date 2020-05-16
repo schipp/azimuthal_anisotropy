@@ -16,6 +16,6 @@ Format of the header-less `.csv` input: `lat1, lon1, lat2, lon2, vel`
 
 ## TODO
 
-- [ ] Implement weighted median/mean using path-lengths within cells. Check https://gist.github.com/tinybike/d9ff1dad515b66cc0d87.
+- [x] Implement weighted average using path-lengths within cells.
 - [ ] Actually test with real data.
 - [ ] Synthetic example that can handle varying anisotropy.

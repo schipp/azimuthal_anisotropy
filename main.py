@@ -1,6 +1,7 @@
 import numpy as np
 from lib.geometry import generate_grid, get_ray_lengths_within_cells, get_distance
-from lib.anisotropy import aniso_parametrization, bin_az_measurements, fit_aniso, extract_aniso_results
+from lib.anisotropy import aniso_parametrization, fit_aniso, extract_aniso_results
+from lib.utils import bin_az_measurements
 import logging
 
 def generate_synthetic_example(n_stations=65, lat_lims=(45, 50), lon_lims=(10, 20), u_0=0, A=.1, phi_2=60, B=.01, phi_4=20, amplitude_noise=.05):
@@ -117,7 +118,7 @@ if __name__ == '__main__':
         ray_params = np.array(ray_params)
         ray_idxs = ray_params[:, 0]
         ray_geometry_in_cell = ray_params[:, 1]
-        ray_lens = [_[0] for _ in ray_geometry_in_cell]
+        ray_lens = np.array([_[0] for _ in ray_geometry_in_cell])
         ray_azs = [_[1] for _ in ray_geometry_in_cell]
         ray_bazs = [_[2] for _ in ray_geometry_in_cell]
 
@@ -128,7 +129,8 @@ if __name__ == '__main__':
         az_bins, vel_bin_medians, vel_bin_stds = bin_az_measurements(
             vels=current_vels,
             bazs=current_azis,
-            az_step=az_bin_size
+            az_step=az_bin_size,
+            weights=ray_lens
             )
 
         # fit anisotropic parameters
