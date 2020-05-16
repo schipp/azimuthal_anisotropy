@@ -1,5 +1,4 @@
 import numpy as np
-from itertools import combinations
 from lib.geometry import generate_grid, get_ray_lengths_within_cells, get_distance
 from lib.anisotropy import aniso_parametrization, bin_az_measurements, fit_aniso, extract_aniso_results
 import logging
@@ -19,6 +18,8 @@ def generate_synthetic_example(n_stations=65, lat_lims=(45, 50), lon_lims=(10, 2
     :param u_0: Isotropic velocity
     :returns: station pair locations  and velocities
     """
+    from itertools import combinations
+
     # random station distribution inside grid
     station_x = np.random.uniform(lon_lims[0]-1, lon_lims[1]+1, [n_stations])
     station_y = np.random.uniform(lat_lims[0]-1, lat_lims[1]+1, [n_stations])
