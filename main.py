@@ -110,8 +110,8 @@ def get_intersection(line1:list, line2:list) -> list:
     """  
 
     from shapely.geometry import LineString
-    l1 = LineString(line1)
-    l2 = LineString(line2)
+    l1 = LineString(((line1[0][1], line1[0][0]), (line1[1][1], line1[1][0])))
+    l2 = LineString(((line2[0][1], line2[0][0]), (line2[1][1], line2[1][0])))
     if l1.intersects(l2):
         point = l1.intersection(l2)
         return [point.y, point.x]
@@ -149,8 +149,7 @@ def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_h
         for ray_idx, ray in enumerate(rays):
             intersection_points = []
             for cell_border in cell_borders:
-                # chech if the line segments intersect
-                # get_intersection a function that returns (y, x) if an intersection points is found, and False otherwise
+                # check if and where the line segments intersect
                 intersection = get_intersection(line1=cell_border, line2=ray)
                 if intersection:
                     intersection_points.append(intersection)
@@ -160,8 +159,8 @@ def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_h
                 if is_in_cell(point=ray[0], corners=cell_corners) and is_in_cell(point=ray[1], corners=cell_corners):
                     point1 = ray[0]
                     point2 = ray[1]
-                # skip to next ray if end-points oustide of cell and no intersection
                 else:
+                    # skip to next ray if end-points oustide of cell and no intersection
                     continue
             # 1 intersection: ray ends or starts in the cell
             elif len(intersection_points) == 1:
@@ -173,7 +172,6 @@ def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_h
                     point2 = ray[1]
             # 2 intersections: ray crosses the cell
             elif len(intersection_points) == 2:
-                # length of path-segment within cell
                 point1 = intersection_points[0]
                 point2 = intersection_points[1]
             else:
@@ -181,6 +179,16 @@ def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_h
                 continue
 
             len_in_cell = get_distance(point1=point1, point2=point2, coord_type=coord_type)
+
+            if len_in_cell[0] > 4000E3:
+                print(len(intersection_points), intersection_points)
+                print('')
+                print(ray[0])
+                print(ray[1])
+                print('')
+                print(point1)
+                print(point2)
+                print('')
             ray_lengths_within_cell.append([ray_idx, len_in_cell])
 
     return ray_lengths_within_cells
@@ -221,7 +229,9 @@ if __name__ == '__main__':
 
     norm = Normalize(vmin=0, vmax=max(path_density))
 
-    fig, ax = plt.subplots(1, 1)
+    fig, axs = plt.subplots(1, 2)
+    ax = axs[0]
+    ax.set_aspect('equal')
 
     gps = np.array(grid_points)
     xx, yy = np.meshgrid(grid_x, grid_y)
@@ -233,8 +243,45 @@ if __name__ == '__main__':
     ax.scatter(scs[:,1], scs[:,0], marker='^', facecolors='k', edgecolors='w')
     
     x0, y0, w, h = ax.get_position().bounds
-    cb_ax = fig.add_axes([x0+w+.01*w, y0, .02*w, h])
+    # cb_ax = fig.add_axes([x0+w+.01*w, y0, .02*w, h])
+    cb_ax = fig.add_axes([x0+.025*w, y0+.025*h, .02*w, .95*h])
     plt.colorbar(img, cax=cb_ax)
     
+
+    # visualize the densest cell to check if everythings working
+    idx_dense = np.argmax(path_density)
+    gp_dense = grid_points[idx_dense]
+    rayidx_dense = np.array(ray_lengths_within_cells[idx_dense])[:,0]
+    ray_params = np.array(ray_lengths_within_cells[idx_dense])[:,1]
+    
+    corners_of_dense = get_cell_corners(cell=gp_dense, width=cell_width, height=cell_height)
+    borders_of_dense = get_cell_borders(corners=corners_of_dense)
+    for border in borders_of_dense:
+        ax.plot((border[0][1], border[1][1]), (border[0][0], border[1][0]), c='red', lw=2)
+
+
+    ax = axs[1]
+    ax.set_aspect('equal')
+    for ray_idx, ray_param in zip(rayidx_dense, ray_params):
+        sta1_x = station_pairs[ray_idx][0][1]
+        sta1_y = station_pairs[ray_idx][0][0]
+        sta2_x = station_pairs[ray_idx][1][1]
+        sta2_y = station_pairs[ray_idx][1][0]
+        ax.plot(
+            [sta1_x, sta2_x], [sta1_y, sta2_y],
+            label=f"{ray_param[0]/1000:0.1f}km / {np.min(ray_param[1:]):0.1f}°"
+            )
+    ax.scatter(scs[:,1], scs[:,0], s=80, marker='^', facecolors='k', edgecolors='w', zorder=10)
+    ax.set_xlim(gp_dense[1]-cell_width/2, gp_dense[1]+cell_width/2)
+    ax.set_ylim(gp_dense[0]-cell_height/2, gp_dense[0]+cell_height/2)
+    ax.set_xticks((gp_dense[1]-cell_width/2, gp_dense[1]+cell_width/2))
+    ax.set_yticks((gp_dense[0]-cell_height/2, gp_dense[0]+cell_height/2))
+    ax.spines['bottom'].set_color('red')
+    ax.spines['top'].set_color('red') 
+    ax.spines['right'].set_color('red')
+    ax.spines['left'].set_color('red')
+
+    ax.legend(loc=2, bbox_to_anchor=(1, 1), fontsize=6)
+
     plt.show(fig)
     plt.close(fig)
