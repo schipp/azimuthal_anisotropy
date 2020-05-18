@@ -143,8 +143,8 @@ def get_intersection(line1:list, line2:list) -> list:
     """  
 
     from shapely.geometry import LineString
-    l1 = LineString(((line1[0][1], line1[0][0]), (line1[1][1], line1[1][0])))
-    l2 = LineString(((line2[0][1], line2[0][0]), (line2[1][1], line2[1][0])))
+    l1 = LineString((line1[0][::-1], line1[1][::-1]))
+    l2 = LineString((line2[0][::-1], line2[1][::-1]))
     if l1.intersects(l2):
         point = l1.intersection(l2)
         return [point.y, point.x]
@@ -288,10 +288,9 @@ if __name__ == '__main__':
     ax.set_aspect('equal')
 
     for ray_idx, ray_param in zip(rayidx_dense, ray_params):
-        sta1_x = station_pairs[ray_idx][0][1]
-        sta1_y = station_pairs[ray_idx][0][0]
-        sta2_x = station_pairs[ray_idx][1][1]
-        sta2_y = station_pairs[ray_idx][1][0]
+        sta1_y, sta1_x = station_pairs[ray_idx][0]
+        sta2_y, sta2_x = station_pairs[ray_idx][1]
+
         ax.plot(
             [sta1_x, sta2_x], [sta1_y, sta2_y],
             label=f"{ray_param[0]/1000:0.1f}km / {np.min(ray_param[1:]):0.1f}°"
