@@ -1,5 +1,7 @@
 # Azimuthal anisotropy from inter-station velocity measurements
 
+[![DOI](https://zenodo.org/badge/264389474.svg)](https://zenodo.org/badge/latestdoi/264389474)
+
 Determine the 2-Theta and 4-Theta terms of azimuthal anisotropy from inter-station group-velocity residuals in overlapping cells. This methodology is established in Schippkus et al. (2020), but the original version used in the paper requires the specific output of a specific isotropic inversion code, relying on the parametrization of the isotropic inversion. This new version is based purely on a .csv file of station-pair locations and inter-station group-velocity residuals.
 
 Format of the header-less `.csv` input: `lat1, lon1, lat2, lon2, vel`
