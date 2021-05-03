@@ -1,3 +1,5 @@
+from shapely.geometry import LineString
+
 def generate_grid(lats:tuple, lons:tuple, cellsize:float, grid_overlap:float) -> list:
     """
     Generates a grid of `cellsize` large cells in bounds `lats`/`lons` with `grid_overlap` overlap.
@@ -128,7 +130,6 @@ def get_distance(point1:tuple, point2:tuple, coord_type='geographic') -> float:
     else:
         raise AttributeError('coord_type invalid: Supported: cartesian or geographic')
 
-
 def get_intersection(line1:list, line2:list) -> list:
     """
     Check if line1 and line2 intersect and returns intersection-point coordinates as list.
@@ -140,17 +141,24 @@ def get_intersection(line1:list, line2:list) -> list:
 
     :Example:
 
-    """  
+    """
+    # some sanity checks for speed-up
+    # if l1y1 > l2y1 AND l1y2 > l2y2, lines cannot cross. same for "lower than" and x
+    if line1[0][0] > line2[0][0] and line1[1][0] > line2[1][0]:
+        return []
+    if line1[0][1] > line2[0][1] and line1[1][1] > line2[1][1]:
+        return []
+    if line1[0][0] < line2[0][0] and line1[1][0] < line2[1][0]:
+        return []
+    if line1[0][1] < line2[0][1] and line1[1][1] < line2[1][1]:
+        return []
 
-    from shapely.geometry import LineString
     l1 = LineString((line1[0][::-1], line1[1][::-1]))
     l2 = LineString((line2[0][::-1], line2[1][::-1]))
     if l1.intersects(l2):
         point = l1.intersection(l2)
         return [point.y, point.x]
     return []
-
-
 
 def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_height:float, rel_loc='mid', coord_type='geographic') -> list:
     """
@@ -173,9 +181,11 @@ def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_h
     # cells are a list of X,Y- or lon,lat-coordinates.
     # rays are a list of ray-end-point (aka station-pair) coordinates. 
 
+    from tqdm import tqdm
+
     # path_lengths an empty list of lists same length as cells
     ray_lengths_within_cells = [[] for _ in cells]
-    for cell, ray_lengths_within_cell in zip(cells, ray_lengths_within_cells):
+    for cell, ray_lengths_within_cell in tqdm(zip(cells, ray_lengths_within_cells), total=len(cells)):
         cell_corners = get_cell_corners(cell=cell, width=cell_width, height=cell_height, rel_loc=rel_loc)
         # determine the four lines that delimit the cell.
         cell_borders = get_cell_borders(corners=cell_corners)
@@ -186,6 +196,7 @@ def get_ray_lengths_within_cells(rays:list, cells:list, cell_width:float, cell_h
                 intersection = get_intersection(line1=cell_border, line2=ray)
                 if intersection:
                     intersection_points.append(intersection)
+            # print('ipoints: ', intersection_points)
             # no intersections
             if len(intersection_points) == 0:
                 # both end-points within cell?

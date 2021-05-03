@@ -3,3 +3,5 @@ lib/__pycache__
 *.pyc
 *.mat
 extract_interstation_vel_from_G.py
+projects/*
+.DS_Store

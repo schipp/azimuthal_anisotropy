@@ -44,13 +44,16 @@ def fit_aniso(az_bins, az_step, vel_bin_medians, vel_bin_stds):
         )
     p0 = (A_guess, B_guess, u0_guess, phi2_guess, phi4_guess)
 
-    params, params_covariance = optimize.curve_fit(
-        f=aniso_parametrization,
-        xdata=np.deg2rad(az_bins + az_step/2),
-        ydata=vel_bin_medians,
-        sigma=vel_bin_stds,
-        absolute_sigma=True,
-        p0=p0)
+    try:
+        params, params_covariance = optimize.curve_fit(
+            f=aniso_parametrization,
+            xdata=np.deg2rad(az_bins + az_step/2),
+            ydata=vel_bin_medians,
+            sigma=vel_bin_stds,
+            absolute_sigma=True,
+            p0=p0)
+    except RuntimeError:
+        logging.warning('skipping, fit failed')
 
     return (params, params_covariance)
 

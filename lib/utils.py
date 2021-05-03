@@ -23,3 +23,15 @@ def bin_az_measurements(vels, bazs, az_step, weights):
     vel_bin_stds = np.delete(vel_bin_stds, np.argwhere(np.isnan(vel_bin_stds)))
 
     return az_bins, vel_bin_medians, vel_bin_stds
+
+def chunks(lst, n):
+    """Yield n chunks and their indices from lst."""
+    import numpy as np
+
+    chunk_size = len(lst) // n
+    if len(lst) % 2 != 0:
+        chunk_size += 1
+    for i in range(0, len(lst), chunk_size):
+        chunk = lst[i:i + chunk_size]
+        chunk_indices = np.arange(i, i + chunk_size)
+        yield chunk_indices, chunk
